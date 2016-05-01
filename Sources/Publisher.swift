@@ -23,8 +23,8 @@ import Foundation
 /// A `Publisher` can serve multiple `Subscriber`s subscribed with
 /// `subscribe(subscriber:)` dynamically at various points in time.
 public protocol Publisher {
-    /// The type of element signaled.
-    associatedtype ElementType
+    /// The type of element to be published.
+    associatedtype PublishType
     
     /// Request `Publisher` to start streaming data.
     ///
@@ -40,5 +40,5 @@ public protocol Publisher {
     ///
     /// - parameter subscriber: The `Subscriber` that will consume signals
     ///   from this `Publisher`.
-    func subscribe<T: Subscriber where T.ElementType == ElementType>(subscriber: T)
+    func subscribe<T: Subscriber where T.SubscribeType == PublishType>(subscriber: T)
 }

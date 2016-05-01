@@ -36,8 +36,8 @@ import Foundation
 /// Demand can be signaled via `Subscription.request(count:)` whenever the
 /// `Subscriber` is capable of handling more.
 public protocol Subscriber {
-    /// The type of element signaled.
-    associatedtype ElementType
+    /// The type of element to be received.
+    associatedtype SubscribeType
     
     /// Invoked after calling `Publisher.subscribe(subscriber:)`.
     /// 
@@ -58,7 +58,7 @@ public protocol Subscriber {
     /// `Subscription.request(count:)`.
     ///
     /// - parameter element: The element signaled.
-    func onNext(element: ElementType)
+    func onNext(element: SubscribeType)
     
     /// Failed terminal state.
     ///
