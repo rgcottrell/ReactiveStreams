@@ -40,5 +40,5 @@ public protocol Publisher {
     ///
     /// - parameter subscriber: The `Subscriber` that will consume signals
     ///   from this `Publisher`.
-    func subscribe<T: Subscriber where T.SubscribeType == PublishType>(subscriber: T)
+    func subscribe<S: Subscriber where S.SubscribeType == PublishType>(subscriber: S)
 }

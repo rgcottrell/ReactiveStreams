@@ -36,7 +36,7 @@ import Foundation
 /// Demand can be signaled via `Subscription.request(count:)` whenever the
 /// `Subscriber` is capable of handling more.
 public protocol Subscriber {
-    /// The type of element to be received.
+    /// The type of elements to be received.
     associatedtype SubscribeType
     
     /// Invoked after calling `Publisher.subscribe(subscriber:)`.
