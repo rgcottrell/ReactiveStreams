@@ -40,5 +40,17 @@ public protocol Publisher {
     ///
     /// - parameter subscriber: The `Subscriber` that will consume signals
     ///   from this `Publisher`.
-    func subscribe<S: Subscriber where S.SubscribeType == PublishType>(subscriber: S)
+    func subscribe<S : Subscriber where S.SubscribeType == PublishType>(subscriber: S)
+}
+
+public extension Publisher {
+    /// Erases type of the publisher and returns the canonical publisher.
+    ///
+    /// - returns: type erased publisher.
+    public func asPublisher() -> AnyPublisher<PublishType> {
+        if let publisher = self as? AnyPublisher<PublishType> {
+            return publisher
+        }
+        return AnyPublisher(self)
+    }  
 }

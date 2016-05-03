@@ -16,19 +16,9 @@
 
 import Foundation
 
-/// A `Processor` represents a processing stage which is both a `Subscriber`
-/// and a `Publisher` and obeys the contracts of both.
-public protocol Processor : Subscriber, Publisher {
-}
-
-public extension Processor {
-    /// Erases type of the processor and returns the canonical processor.
-    ///
-    /// - returns: type erased publisher.
-    public func asProcessor() -> AnyProcessor<SubscribeType, PublishType> {
-        if let processor = self as? AnyProcessor<SubscribeType, PublishType> {
-            return processor
-        }
-        return AnyProcessor(self)
-    }  
+/// Signals that the method is an abstract method that must be overriden
+/// in a subclass.
+@noreturn @inline(never)
+internal func _abstract(file: StaticString = #file, line: UInt = #line) {
+    fatalError("Method must be overriden", file: file, line: line)
 }

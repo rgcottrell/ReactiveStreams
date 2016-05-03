@@ -20,58 +20,40 @@ import Foundation
 ///
 /// Forwards operations to an arbitrary underlying publisher with the same
 /// `PublishType` type, hiding the specifics of the underlying publisher.
-public struct AnyPublisher<Publish>: Publisher {
+public struct AnyPublisher<Element> : Publisher {
     /// The type of elements to be published.
-    public typealias PublishType = Publish
+    public typealias PublishType = Element
     
     /// The boxed publisher which will receive forwarded calls.
-    private let box: _AnyPublisherBoxBase<PublishType>
+    private let _box: _AnyPublisherBox<PublishType>
     
     /// Create a type erased wrapper around a publisher.
     ///
     /// - parameter box: The publisher to receive operations.
-    public init<P: Publisher where P.PublishType == PublishType>(_ box: P) {
-        self.box = _AnyPublisherBox(box)
+    public init<P: Publisher where P.PublishType == PublishType>(_ base: P) {
+        _box = _PublisherBox(base)
     }
     
     /// Forward `subscribe(subscriber:)` to the boxed publisher.
-    public func subscribe<S: Subscriber where S.SubscribeType == PublishType>(subscriber: S) {
-        box.subscribe(subscriber: subscriber)
-    }
-    
-    /// Erases type of the publisher and returns the canonical publisher.
-    ///
-    /// - returns: type erased publisher.
-    public func asPublisher() -> AnyPublisher<PublishType> {
-        return self
+    public func subscribe<S : Subscriber where S.SubscribeType == PublishType>(subscriber: S) {
+        _box.subscribe(subscriber: subscriber)
     }
 }
 
-public extension Publisher {
-    /// Erases type of the publisher and returns the canonical publisher.
-    ///
-    /// - returns: type erased publisher.
-    public func asPublisher() -> AnyPublisher<PublishType> {
-        return AnyPublisher(self)
-    }  
-}
-
-private class _AnyPublisherBox<P: Publisher>: _AnyPublisherBoxBase<P.PublishType> {
-    let box: P
+internal final class _PublisherBox<P : Publisher> : _AnyPublisherBox<P.PublishType> {
+    private let _base: P
     
-    init(_ box: P) {
-        self.box = box
+    internal init(_ base: P) {
+        self._base = base
     }
     
-    override func subscribe<S: Subscriber where S.SubscribeType == PublishType>(subscriber: S) {
-        box.subscribe(subscriber: subscriber)
+    internal override func subscribe<S : Subscriber where S.SubscribeType == P.PublishType>(subscriber: S) {
+        _base.subscribe(subscriber: subscriber)
     }
 }
 
-private class _AnyPublisherBoxBase<Publish>: Publisher {
-    typealias PublishType = Publish
-    
-    func subscribe<S: Subscriber where S.SubscribeType == PublishType>(subscriber: S) {
-        fatalError()
+internal class _AnyPublisherBox<Element> {    
+    internal func subscribe<S : Subscriber where S.SubscribeType == Element>(subscriber: S) {
+        _abstract()
     }
 }

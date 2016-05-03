@@ -74,3 +74,15 @@ public protocol Subscriber {
     /// is called again.
     func onComplete()
 }
+
+public extension Subscriber {
+    /// Erases type of the subscriber and returns the canonical subscriber.
+    ///
+    /// - returns: type erased subscriber.
+    public func asSubscriber() -> AnySubscriber<SubscribeType> {
+        if let subscriber = self as? AnySubscriber<SubscribeType> {
+            return subscriber
+        }
+        return AnySubscriber(self)
+    }  
+}

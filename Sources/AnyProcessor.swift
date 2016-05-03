@@ -21,114 +21,95 @@ import Foundation
 /// Forwards operations to an arbitrary underlying processor with the same
 /// `SubscribeTrype` and `PublishType` types, hiding the specifics of the
 /// underlying processor.
-public struct AnyProcessor<Subscribe, Publish>: Processor {
+public struct AnyProcessor<ElementIn, ElementOut> : Processor {
     /// The type of elements to be received.
-    public typealias SubscribeType = Subscribe
+    public typealias SubscribeType = ElementIn
      
     /// The type of elements to be published.
-    public typealias PublishType = Publish
+    public typealias PublishType = ElementOut
     
     /// The boxed processor which will receive forwarded calls.
-    private let box: _AnyProcessorBoxBase<SubscribeType, PublishType>
+    private let _box: _AnyProcessorBox<SubscribeType, PublishType>
     
     /// Create a type erased wrapper around a processor.
     ///
     /// - parameter box: The processor to receive operations.
-    public init<P: Processor where P.SubscribeType == SubscribeType, P.PublishType == PublishType>(_ box: P) {
-        self.box = _AnyProcessorBox(box)
+    public init<P: Processor where P.SubscribeType == SubscribeType, P.PublishType == PublishType>(_ base: P) {
+        _box = _ProcessorBox(base)
     }
     
     /// Forward `onSubscribe(subscription:)` to the boxed processor.
     public func onSubscribe(subscription: Subscription) {
-        box.onSubscribe(subscription: subscription)
+        _box.onSubscribe(subscription: subscription)
     }
     
-    /// Forward `onNext` to the boxed processor.
+    /// Forward `onNext()` to the boxed processor.
     public func onNext(element: SubscribeType) {
-        box.onNext(element: element)
+        _box.onNext(element: element)
     }
     
     /// Forward `onError(error:)` to the boxed processor.
     public func onError(error: ErrorProtocol) {
-        box.onError(error: error)
+        _box.onError(error: error)
     }
     
     /// Forward `onComplete()` to the boxed processor.
     public func onComplete() {
-        box.onComplete()
+        _box.onComplete()
     }
     
     /// Forward `subscribe(subscriber:)` to the boxed processor.
-    public func subscribe<S: Subscriber where S.SubscribeType == PublishType>(subscriber: S) {
-        box.subscribe(subscriber: subscriber)
-    }
-    
-    /// Erases type of the processor and returns the canonical processor.
-    ///
-    /// - returns: type erased processor.
-    public func asProcessor() -> AnyProcessor<SubscribeType, PublishType> {
-        return self
+    public func subscribe<S : Subscriber where S.SubscribeType == PublishType>(subscriber: S) {
+        _box.subscribe(subscriber: subscriber)
     }
 }
 
-public extension Processor {
-    /// Erases type of the processor and returns the canonical processor.
-    ///
-    /// - returns: type erased processor.
-    public func asProcessor() -> AnyProcessor<SubscribeType, PublishType> {
-        return AnyProcessor(self)
-    }  
-}
-
-private class _AnyProcessorBox<P: Processor>: _AnyProcessorBoxBase<P.SubscribeType, P.PublishType> {
-    let box: P
+internal final class _ProcessorBox<P : Processor> : _AnyProcessorBox<P.SubscribeType, P.PublishType> {
+    private let _base: P
     
-    init(_ box: P) {
-        self.box = box
+    internal init(_ base: P) {
+        self._base = base
     }
     
-    override func onSubscribe(subscription: Subscription) {
-        box.onSubscribe(subscription: subscription)
+    internal override func onSubscribe(subscription: Subscription) {
+        _base.onSubscribe(subscription: subscription)
     }
     
-    override func onNext(element: SubscribeType) {
-        box.onNext(element: element)
+    internal override func onNext(element: P.SubscribeType) {
+        _base.onNext(element: element)
     }
     
-    override func onError(error: ErrorProtocol) {
-        box.onError(error: error)
+    internal override func onError(error: ErrorProtocol) {
+        _base.onError(error: error)
     }
     
-    override func onComplete() {
-        box.onComplete()
+    internal override func onComplete() {
+        _base.onComplete()
     }
     
-    override func subscribe<S: Subscriber where S.SubscribeType == PublishType>(subscriber: S) {
-        box.subscribe(subscriber: subscriber)
+    internal override func subscribe<S : Subscriber where S.SubscribeType == P.PublishType>(subscriber: S) {
+        _base.subscribe(subscriber: subscriber)
     }
 }
 
-private class _AnyProcessorBoxBase<Subscribe, Publish>: Processor {
-    typealias SubscribeType = Subscribe
-    typealias PublishType = Publish
-    
-    func onSubscribe(subscription: Subscription) {
-        fatalError()
+internal class _AnyProcessorBox<ElementIn, ElementOut> {    
+    internal func onSubscribe(subscription: Subscription) {
+        _abstract()
     }
     
-    func onNext(element: SubscribeType) {
-        fatalError()
+    internal func onNext(element: ElementIn) {
+        _abstract()
     }
     
-    func onError(error: ErrorProtocol) {
-        fatalError()
+    internal func onError(error: ErrorProtocol) {
+        _abstract()
     }
     
-    func onComplete() {
-        fatalError()
+    internal func onComplete() {
+        _abstract()
     }
     
-    func subscribe<S: Subscriber where S.SubscribeType == PublishType>(subscriber: S) {
-        fatalError()
+    internal func subscribe<S : Subscriber where S.SubscribeType == ElementOut>(subscriber: S) {
+        _abstract()
     }
 }

@@ -4,7 +4,7 @@ This is a Swift implementation of the [Reactive Streams](http://www.reactive-str
 
 ## Requirements
 
-Swift 3.0 snapshot required.
+Swift 3.0 development toolchain required.
 
 ## References
 
