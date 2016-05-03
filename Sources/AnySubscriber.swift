@@ -20,97 +20,79 @@ import Foundation
 ///
 /// Forwards operations to an arbitrary underlying subscriber with the same
 /// `SubscribeTrype` type, hiding the specifics of the underlying subscriber.
-public struct AnySubscriber<Subscribe>: Subscriber {
+public struct AnySubscriber<Element> : Subscriber {
     /// The type of elements to be received.
-    public typealias SubscribeType = Subscribe
+    public typealias SubscribeType = Element
      
     /// The boxed processor which will receive forwarded calls.
-    private let box: _AnySubscriberBoxBase<SubscribeType>
+    private let _box: _AnySubscriberBox<SubscribeType>
     
     /// Create a type erased wrapper around a subscriber.
     ///
     /// - parameter box: The subscriber to receive operations.
-    public init<S: Subscriber where S.SubscribeType == SubscribeType>(_ box: S) {
-        self.box = _AnySubscriberBox(box)
+    public init<S : Subscriber where S.SubscribeType == SubscribeType>(_ base: S) {
+        _box = _SubscriberBox(base)
     }
     
     /// Forward `onSubscribe(subscription:)` to the boxed subscriber.
     public func onSubscribe(subscription: Subscription) {
-        box.onSubscribe(subscription: subscription)
+        _box.onSubscribe(subscription: subscription)
     }
     
     /// Forward `onNext` to the boxed subscriber.
     public func onNext(element: SubscribeType) {
-        box.onNext(element: element)
+        _box.onNext(element: element)
     }
     
     /// Forward `onError(error:)` to the boxed subscriber.
     public func onError(error: ErrorProtocol) {
-        box.onError(error: error)
+        _box.onError(error: error)
     }
     
     /// Forward `onComplete()` to the boxed subscriber.
     public func onComplete() {
-        box.onComplete()
-    }
-
-    /// Erases type of the subscriber and returns the canonical subscriber.
-    ///
-    /// - returns: type erased subscriber.
-    public func asSubscriber() -> AnySubscriber<SubscribeType> {
-        return self
+        _box.onComplete()
     }
 }
 
-public extension Subscriber {
-    /// Erases type of the subscriber and returns the canonical processor.
-    ///
-    /// - returns: type erased subscriber.
-    public func asSubscriber() -> AnySubscriber<SubscribeType> {
-        return AnySubscriber(self)
-    }  
-}
-
-private class _AnySubscriberBox<S: Subscriber>: _AnySubscriberBoxBase<S.SubscribeType> {
-    let box: S
+internal final class _SubscriberBox<S : Subscriber> : _AnySubscriberBox<S.SubscribeType> {
+    private let _base: S
     
-    init(_ box: S) {
-        self.box = box
+    internal init(_ base: S) {
+        self._base = base
     }
     
-    override func onSubscribe(subscription: Subscription) {
-        box.onSubscribe(subscription: subscription)
+    internal override func onSubscribe(subscription: Subscription) {
+        _base.onSubscribe(subscription: subscription)
     }
     
-    override func onNext(element: SubscribeType) {
-        box.onNext(element: element)
+    internal override func onNext(element: S.SubscribeType) {
+        _base.onNext(element: element)
     }
     
-    override func onError(error: ErrorProtocol) {
-        box.onError(error: error)
+    internal override func onError(error: ErrorProtocol) {
+        _base.onError(error: error)
     }
     
-    override func onComplete() {
-        box.onComplete()
+    internal override func onComplete() {
+        _base.onComplete()
     }
 }
 
-private class _AnySubscriberBoxBase<Subscribe>: Subscriber {
-    typealias SubscribeType = Subscribe
-    
-    func onSubscribe(subscription: Subscription) {
-        fatalError()
+internal class _AnySubscriberBox<Element> {
+    internal func onSubscribe(subscription: Subscription) {
+        _abstract()
     }
     
-    func onNext(element: SubscribeType) {
-        fatalError()
+    internal func onNext(element: Element) {
+        _abstract()
     }
     
-    func onError(error: ErrorProtocol) {
-        fatalError()
+    internal func onError(error: ErrorProtocol) {
+        _abstract()
     }
     
-    func onComplete() {
-        fatalError()
+    internal func onComplete() {
+        _abstract()
     }
 }
