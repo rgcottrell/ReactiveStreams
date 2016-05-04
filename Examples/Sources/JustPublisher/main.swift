@@ -14,8 +14,15 @@
  * limitations under the License.
  */
 
-import PackageDescription
+import Foundation
+import ReactiveStreams
 
-let package = Package(
-    name: "ReactiveStreams"
-)
+// Create a publisher to signal a single item to and subscribe to it with a
+// custom onNext handler.
+let _ = AnyPublisher.just(42)
+    .subscribeOnNext { element in
+        print("I just got an element: \(element)")
+    }
+
+// Sleep to allow time for asynchronous streams to complete.
+NSThread.sleep(forTimeInterval: 1.0)

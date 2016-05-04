@@ -1,19 +1,8 @@
-# ReactiveStreams: Reactive Streams for Swift
+# OneShotPublisher
 
-This is a Swift implementation of the [Reactive Streams](http://www.reactive-streams.org) initiative.
-
-## Requirements
-
-Swift 3.0 development toolchain required.
-
-## Examples
-
-Several examples of using ReactiveStreams are available in the [Examples](Examples) subdirectory.
-
-## References
-
-* [Reactive Streams](http://www.reactive-streams.org)
-* [Reactive Streams Specification for the JVM](https://github.com/reactive-streams/reactive-streams-jvm)
+This example shows a publisher that is designed to publish a single element
+to a single subscriber. Any subsequent subscription attempts will result in
+an immediate error.
 
 ## LICENSE
 

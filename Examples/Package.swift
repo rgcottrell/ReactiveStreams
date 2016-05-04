@@ -1,5 +1,4 @@
-/*
- * Copyright 2016 Robert Cottrell
+/* Copyright 2016 Robert Cottrell
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,5 +16,8 @@
 import PackageDescription
 
 let package = Package(
-    name: "ReactiveStreams"
+    name: "Examples",
+    dependencies: [
+        .Package(url: "https://github.com/rgcottrell/ReactiveStreams", majorVersion: 1)
+    ]
 )
