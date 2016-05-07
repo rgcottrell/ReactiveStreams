@@ -1,4 +1,4 @@
-# JustPublisher
+# Publisher
 
 This example shows a simple publisher that can be created using factory
 methods on the type erased AnyPublisher.
