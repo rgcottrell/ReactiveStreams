@@ -20,7 +20,7 @@ import Foundation
 ///
 /// Forwards operations to an arbitrary underlying publisher with the same
 /// `PublishType` type, hiding the specifics of the underlying publisher.
-public struct AnyPublisher<Element> : Publisher {
+public final class AnyPublisher<Element> : Publisher {
     /// The type of elements to be published.
     public typealias PublishType = Element
     
@@ -29,7 +29,7 @@ public struct AnyPublisher<Element> : Publisher {
     
     /// Create a type erased wrapper around a publisher.
     ///
-    /// - parameter box: The publisher to receive operations.
+    /// - parameter base: The publisher to receive operations.
     public init<P: Publisher where P.PublishType == PublishType>(_ base: P) {
         _box = _PublisherBox(base)
     }

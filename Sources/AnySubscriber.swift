@@ -20,7 +20,7 @@ import Foundation
 ///
 /// Forwards operations to an arbitrary underlying subscriber with the same
 /// `SubscribeTrype` type, hiding the specifics of the underlying subscriber.
-public struct AnySubscriber<Element> : Subscriber {
+public final class AnySubscriber<Element> : Subscriber {
     /// The type of elements to be received.
     public typealias SubscribeType = Element
      
@@ -29,7 +29,7 @@ public struct AnySubscriber<Element> : Subscriber {
     
     /// Create a type erased wrapper around a subscriber.
     ///
-    /// - parameter box: The subscriber to receive operations.
+    /// - parameter base: The subscriber to receive operations.
     public init<S : Subscriber where S.SubscribeType == SubscribeType>(_ base: S) {
         _box = _SubscriberBox(base)
     }

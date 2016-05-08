@@ -21,7 +21,7 @@ import Foundation
 /// Forwards operations to an arbitrary underlying processor with the same
 /// `SubscribeTrype` and `PublishType` types, hiding the specifics of the
 /// underlying processor.
-public struct AnyProcessor<ElementIn, ElementOut> : Processor {
+public final class AnyProcessor<ElementIn, ElementOut> : Processor {
     /// The type of elements to be received.
     public typealias SubscribeType = ElementIn
      
@@ -33,7 +33,7 @@ public struct AnyProcessor<ElementIn, ElementOut> : Processor {
     
     /// Create a type erased wrapper around a processor.
     ///
-    /// - parameter box: The processor to receive operations.
+    /// - parameter base: The processor to receive operations.
     public init<P: Processor where P.SubscribeType == SubscribeType, P.PublishType == PublishType>(_ base: P) {
         _box = _ProcessorBox(base)
     }
