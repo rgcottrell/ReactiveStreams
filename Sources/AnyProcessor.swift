@@ -29,13 +29,21 @@ public final class AnyProcessor<ElementIn, ElementOut> : Processor {
     public typealias PublishType = ElementOut
     
     /// The boxed processor which will receive forwarded calls.
-    private let _box: _AnyProcessorBox<SubscribeType, PublishType>
+    internal let _box: _AnyProcessorBox<SubscribeType, PublishType>
     
     /// Create a type erased wrapper around a processor.
     ///
     /// - parameter base: The processor to receive operations.
     public init<P: Processor where P.SubscribeType == SubscribeType, P.PublishType == PublishType>(_ base: P) {
         _box = _ProcessorBox(base)
+    }
+    
+    /// Create a type erased wrapper having the same underlying `Processor`
+    /// as `other`.
+    ///
+    /// - parameter other: The other `AnyProcessor` instance.
+    public init(_ other: AnyProcessor<ElementIn, ElementOut>) {
+        _box = other._box
     }
     
     /// Forward `onSubscribe(subscription:)` to the boxed processor.

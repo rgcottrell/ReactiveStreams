@@ -19,9 +19,9 @@ import XCTest
 
 @testable import ReactiveStreams
 
-class TestProcessor<ElementIn, ElementOut> : Processor {
-    typealias SubscribeType = ElementIn
-    typealias PublishType = ElementOut
+class TestProcessor : Processor {
+    typealias SubscribeType = Void
+    typealias PublishType = Void
 
     func onSubscribe(subscription: Subscription) {
         _abstract()
@@ -46,12 +46,19 @@ class TestProcessor<ElementIn, ElementOut> : Processor {
 
 class AnyProcessorTests : XCTestCase {
     static let allTests: [(String, AnyProcessorTests -> () throws -> Void)] = [
+        ("testAnyProcessor", testAnyProcessor),
         ("testAsProcessor1", testAsProcessor1),
         ("testAsProcessor2", testAsProcessor2)        
     ]
+    
+    func testAnyProcessor() {
+        let anyProcessor1 = TestProcessor().asProcessor()
+        let anyProcessor2 = AnyProcessor(anyProcessor1)
+        XCTAssert(anyProcessor1._box === anyProcessor2._box, "AnyProcessor boxed values should match")
+    }
 
     func testAsProcessor1() {
-        let processor = TestProcessor<Int, Int>()
+        let processor = TestProcessor()
         let asProcessor1 = processor.asProcessor()
         let asProcessor2 = asProcessor1.asProcessor()
         XCTAssertTrue(asProcessor1 === asProcessor2, "asProcessor is a no-op when applied to AnyProcessor")
@@ -62,7 +69,7 @@ class AnyProcessorTests : XCTestCase {
             return processor.asProcessor()
         }
         
-        let processor = TestProcessor<Int, Int>()
+        let processor = TestProcessor()
         let asProcessor1 = processor.asProcessor()
         let asProcessor2 = box(processor: asProcessor1)
         XCTAssertTrue(asProcessor1 === asProcessor2, "asProcessor is a no-op when applied to AnyProcessor")

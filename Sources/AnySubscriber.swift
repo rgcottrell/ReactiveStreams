@@ -25,13 +25,21 @@ public final class AnySubscriber<Element> : Subscriber {
     public typealias SubscribeType = Element
      
     /// The boxed processor which will receive forwarded calls.
-    private let _box: _AnySubscriberBox<SubscribeType>
+    internal let _box: _AnySubscriberBox<SubscribeType>
     
     /// Create a type erased wrapper around a subscriber.
     ///
     /// - parameter base: The subscriber to receive operations.
     public init<S : Subscriber where S.SubscribeType == SubscribeType>(_ base: S) {
         _box = _SubscriberBox(base)
+    }
+    
+    /// Create a type erased wrapper having the same underlying `Subscriber`
+    /// as `other`.
+    ///
+    /// - parameter other: The other `AnySubscriber` instance.
+    public init(_ other: AnySubscriber<Element>) {
+        _box = other._box
     }
     
     /// Forward `onSubscribe(subscription:)` to the boxed subscriber.

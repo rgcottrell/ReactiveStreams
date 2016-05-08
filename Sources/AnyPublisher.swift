@@ -25,13 +25,21 @@ public final class AnyPublisher<Element> : Publisher {
     public typealias PublishType = Element
     
     /// The boxed publisher which will receive forwarded calls.
-    private let _box: _AnyPublisherBox<PublishType>
+    internal let _box: _AnyPublisherBox<PublishType>
     
     /// Create a type erased wrapper around a publisher.
     ///
     /// - parameter base: The publisher to receive operations.
     public init<P: Publisher where P.PublishType == PublishType>(_ base: P) {
         _box = _PublisherBox(base)
+    }
+    
+    /// Create a type erased wrapper having the same underlying `Publisher`
+    /// as `other`.
+    ///
+    /// - parameter other: The other `AnyPublisher` instance.
+    public init(_ other: AnyPublisher<Element>) {
+        _box = other._box
     }
     
     /// Forward `subscribe(subscriber:)` to the boxed publisher.

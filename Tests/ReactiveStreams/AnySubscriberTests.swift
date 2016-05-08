@@ -19,14 +19,14 @@ import XCTest
 
 @testable import ReactiveStreams
 
-class TestSubscriber<Element> : Subscriber {
-    typealias SubscribeType = Element
+class TestSubscriber : Subscriber {
+    typealias SubscribeType = Void
 
     func onSubscribe(subscription: Subscription) {
         _abstract()
     }
     
-    func onNext(element: Element) {
+    func onNext(element: SubscribeType) {
         _abstract()
     }
     
@@ -41,12 +41,19 @@ class TestSubscriber<Element> : Subscriber {
 
 class AnySubscriberTests : XCTestCase {
     static let allTests: [(String, AnySubscriberTests -> () throws -> Void)] = [
+        ("testAnySubscriber", testAnySubscriber),
         ("testAsSubscriber1", testAsSubscriber1),
         ("testAsSubscriber2", testAsSubscriber2)        
     ]
 
+    func testAnySubscriber() {
+        let anySubscriber1 = TestSubscriber().asSubscriber()
+        let anySubscriber2 = AnySubscriber(anySubscriber1)
+        XCTAssert(anySubscriber1._box === anySubscriber2._box, "AnySubscriber boxed values should match")
+    }
+
     func testAsSubscriber1() {
-        let subscriber = TestSubscriber<Int>()
+        let subscriber = TestSubscriber()
         let asSubscriber1 = subscriber.asSubscriber()
         let asSubscriber2 = asSubscriber1.asSubscriber()
         XCTAssertTrue(asSubscriber1 === asSubscriber2, "asSubscriber is a no-op when applied to AnySubscriber")
@@ -57,7 +64,7 @@ class AnySubscriberTests : XCTestCase {
             return subscriber.asSubscriber()
         }
         
-        let subscriber = TestSubscriber<Int>()
+        let subscriber = TestSubscriber()
         let asSubscriber1 = subscriber.asSubscriber()
         let asSubscriber2 = box(subscriber: asSubscriber1)
         XCTAssertTrue(asSubscriber1 === asSubscriber2, "asSubscriber is a no-op when applied to AnySubscriber")

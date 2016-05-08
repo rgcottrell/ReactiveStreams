@@ -19,8 +19,8 @@ import XCTest
 
 @testable import ReactiveStreams
 
-class TestPublisher<Element> : Publisher {
-    typealias PublishType = Element
+class TestPublisher : Publisher {
+    typealias PublishType = Void
     
     func subscribe<S : Subscriber where S.SubscribeType == PublishType>(subscriber: S) {
         _abstract()
@@ -29,12 +29,19 @@ class TestPublisher<Element> : Publisher {
 
 class AnyPublisherTests : XCTestCase {
     static let allTests: [(String, AnyPublisherTests -> () throws -> Void)] = [
+        ("testAnyPublisher", testAnyPublisher),
         ("testAsPublisher1", testAsPublisher1),
         ("testAsPublisher2", testAsPublisher2)        
     ]
+    
+    func testAnyPublisher() {
+        let anyPublisher1 = TestPublisher().asPublisher()
+        let anyPublisher2 = AnyPublisher(anyPublisher1)
+        XCTAssert(anyPublisher1._box === anyPublisher2._box, "AnyPublisher boxed values should match")
+    }
 
     func testAsPublisher1() {
-        let publisher = TestPublisher<Int>()
+        let publisher = TestPublisher()
         let asPublisher1 = publisher.asPublisher()
         let asPublisher2 = asPublisher1.asPublisher()
         XCTAssertTrue(asPublisher1 === asPublisher2, "asPublisher is a no-op when applied to AnyPublisher")
@@ -45,7 +52,7 @@ class AnyPublisherTests : XCTestCase {
             return publisher.asPublisher()
         }
         
-        let publisher = TestPublisher<Int>()
+        let publisher = TestPublisher()
         let asPublisher1 = publisher.asPublisher()
         let asPublisher2 = box(publisher: asPublisher1)
         XCTAssertTrue(asPublisher1 === asPublisher2, "asPublisher is a no-op when applied to AnyPublisher")
