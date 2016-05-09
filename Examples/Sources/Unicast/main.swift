@@ -15,15 +15,19 @@
  */
 
 import Foundation
+import ReactiveStreams
 
-/// Errors due to failure to comply with the Reactive Streams specification.
-public enum ReactiveStreamsError : ErrorProtocol {
-    case IllegalStateException(String)
-}
+// Create a publisher to signal a single item to and subscribe to it with a
+// custom onNext handler.
+let publisher = AsyncSequencePublisher(elements: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
 
-/// Signals that the method is an abstract method that must be overriden
-/// in a subclass.
-@noreturn @inline(never)
-internal func _abstract(file: StaticString = #file, line: UInt = #line) {
-    fatalError("Method must be overriden", file: file, line: line)
-}
+// Create a subscriber to log published elements.
+let subscriber = SyncSubscriber<Int>(whenNext: {
+    print("ELEMENT: \($0)")
+    return true
+})   
+
+publisher.subscribe(subscriber: subscriber)
+
+// Sleep to allow time for asynchronous streams to complete.
+NSThread.sleep(forTimeInterval: 1.0)

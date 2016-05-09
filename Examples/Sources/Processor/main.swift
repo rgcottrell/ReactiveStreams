@@ -15,15 +15,16 @@
  */
 
 import Foundation
+import ReactiveStreams
 
-/// Errors due to failure to comply with the Reactive Streams specification.
-public enum ReactiveStreamsError : ErrorProtocol {
-    case IllegalStateException(String)
-}
+// Create a publisher to signal a single item to and subscribe to it with a
+// custom onNext handler.
+let _ = AnyPublisher.just(1)
+    .map { return 2 * $0 }
+    .map { return [$0] }
+    .subscribeOnNext { element in
+        print("I just got an element: \(element)")
+    }
 
-/// Signals that the method is an abstract method that must be overriden
-/// in a subclass.
-@noreturn @inline(never)
-internal func _abstract(file: StaticString = #file, line: UInt = #line) {
-    fatalError("Method must be overriden", file: file, line: line)
-}
+// Sleep to allow time for asynchronous streams to complete.
+NSThread.sleep(forTimeInterval: 1.0)
